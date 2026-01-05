@@ -138,39 +138,77 @@ def dayTen():
 def dayTen2():
     arr = []
     ngh = [(-1,0),(1,0),(0,-1),(0,1)]
+    i = 0
     #read
     with open("Day10/10.txt") as file:
         for line in file:
             arr.append(list(line.rstrip()))
+            for j in range(len(line)):
+                if line[j] == 'S':
+                    start = (i,j)
+            i += 1
 
     m,n = len(arr),len(arr[0])
+    special = "|-FJL7"
+
+    #what is S ???
+    maybe_s = {'|','-','L','J','7','F'}
+    for dx,dy in ngh:
+        nx,ny = start[0]+dx,start[1]+dy
+        if (dx,dy) == (-1,0):
+            if arr[nx][ny] in "|7F":
+                maybe_s &= {'|','L','J'}
+        elif (dx,dy) == (1,0):
+            if arr[nx][ny] in "|LJ":
+                maybe_s &= {'|','7','F'}
+        elif (dx,dy) == (0,-1):
+            if arr[nx][ny] in "-LF":
+                maybe_s &= {'-','J','7'}
+        elif (dx,dy) == (0,1):
+            if arr[nx][ny] in "-J7":
+                maybe_s &= {'-','L','F'}
+    arr[start[0]][start[1]] = maybe_s.pop()
+
+    h = {'|':[['.','|','.'],['.','|','.'],['.','|','.']], '-':[['.','.','.'],['-','-','-'],['.','.','.']], '7':[['.','.','.'],['-','7','.'],['.','|','.']] , 'F':[['.','.','.'],['.','F','-'],['.','|','.']] , 'L':[['.','|','.'],['.','L','-'],['.','.','.']] , 'J':[['.','|','.'],['-','J','.'],['.','.','.']]}
+    newArr = [['.']*n*3 for _ in range(m*3)]
+
+    for i in range(m):
+        for j in range(n):
+            char = arr[i][j]
+            if char in special:
+                for a in range(i*3,i*3+3):
+                    for b in range(j*3,j*3+3):
+                        newArr[a][b] = h[char][a-i*3][b-j*3]
+
+    m,n = len(newArr),len(newArr[0])
     seen = set()
+
+    for a in newArr:
+        print(''.join(a))
+
+    return
 
     def bfs(i,j):
         count = 1
         inside = True
         q = deque([(i,j)])
         seen.add( (i,j) )
-        foundInloop = [ (i,j) ]
 
+        
         while q:
             curr = q.popleft()
             x,y = curr
             for dx,dy in ngh:
                 nx,ny = dx+x,dy+y
                 if 0<=nx<m and 0<=ny<n:
-                    if arr[nx][ny] == '.' and (nx,ny) not in seen:
+                    if newArr[nx][ny] == '.' and (nx,ny) not in seen:
                         seen.add( (nx,ny) )
                         q.append( (nx,ny) )
-                        foundInloop.append( (nx,ny) )
-                        count += 1
+
                 else:
                     inside = False
 
         if inside:
-            #print(foundInloop)
-            for x,y in foundInloop:
-                arr[x][y] = '@'
             return count
         else:
             return 0
@@ -178,13 +216,10 @@ def dayTen2():
     inloop = 0
     for i in range(m):
         for j in range(n):
-            if arr[i][j] == '.' and (i,j) not in seen:
+            if newArr[i][j] == '.' and (i,j) not in seen:
                 inloop += bfs(i,j)
-    
-    for a in arr:
-        print(''.join(a))
 
-    return inloop
+    return inloop//3
 
 def main():
     print("Hallo")
