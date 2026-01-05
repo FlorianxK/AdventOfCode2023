@@ -140,7 +140,7 @@ def dayTen2():
     ngh = [(-1,0),(1,0),(0,-1),(0,1)]
     i = 0
     #read
-    with open("Day10/10.txt") as file:
+    with open("Day10/10_2.txt") as file:
         for line in file:
             arr.append(list(line.rstrip()))
             for j in range(len(line)):
@@ -148,7 +148,122 @@ def dayTen2():
                     start = (i,j)
             i += 1
 
+    #first find all cells of the loop
     m,n = len(arr),len(arr[0])
+    q = deque([])
+    seen = set()
+    seen.add(start)
+    #first move
+    for nxt in [(-1,0),(1,0),(0,-1),(0,1)]:
+        nx,ny = start[0]+nxt[0],start[1]+nxt[1]
+        if 0<=nx<m and 0<=ny<n:
+            if nxt == (-1,0):
+                if arr[nx][ny] == '|':
+                    q.append( ((nx,ny),'N') )
+                    seen.add( (nx,ny) )
+                if arr[nx][ny] == '7':
+                    q.append( ((nx,ny),'W') )
+                    seen.add( (nx,ny) ) 
+                if arr[nx][ny] == 'F':
+                    q.append( ((nx,ny),'E') )
+                    seen.add( (nx,ny) )
+
+            elif nxt == (1,0):
+                if arr[nx][ny] == '|':
+                    q.append( ((nx,ny),'S') )
+                    seen.add( (nx,ny) )
+                if arr[nx][ny] == 'L':
+                    q.append( ((nx,ny),'E') )
+                    seen.add( (nx,ny) ) 
+                if arr[nx][ny] == 'J':
+                    q.append( ((nx,ny),'W') )
+                    seen.add( (nx,ny) )
+
+            elif nxt == (0,-1):
+                if arr[nx][ny] == '-':
+                    q.append( ((nx,ny),'W') )
+                    seen.add( (nx,ny) )
+                if arr[nx][ny] == 'L':
+                    q.append( ((nx,ny),'N') )
+                    seen.add( (nx,ny) ) 
+                if arr[nx][ny] == 'F':
+                    q.append( ((nx,ny),'S') )
+                    seen.add( (nx,ny) )
+
+            elif nxt == (0,1):
+                if arr[nx][ny] == '-':
+                    q.append( ((nx,ny),'E') )
+                    seen.add( (nx,ny) )
+                if arr[nx][ny] == '7':
+                    q.append( ((nx,ny),'S') )
+                    seen.add( (nx,ny) ) 
+                if arr[nx][ny] == 'J':
+                    q.append( ((nx,ny),'N') )
+                    seen.add( (nx,ny) )
+    
+    while True:
+        nextQ = deque([])
+        while q:
+            curr,comp = q.popleft()
+            x,y = curr
+
+            if comp == 'N':
+                x -= 1
+                if 0<=x<m and (x,y) not in seen:
+                    if arr[x][y] == '|':
+                        nextQ.append( ((x,y),'N') )
+                        seen.add( (x,y) )
+                    elif arr[x][y] == '7':
+                        nextQ.append( ((x,y),'W') )
+                        seen.add( (x,y) ) 
+                    elif arr[x][y] == 'F':
+                        nextQ.append( ((x,y),'E') )
+                        seen.add( (x,y) )
+
+            elif comp == 'S':
+                x += 1
+                if 0<=x<m and (x,y) not in seen:
+                    if arr[x][y] == '|':
+                        nextQ.append( ((x,y),'S') )
+                        seen.add( (x,y) )
+                    elif arr[x][y] == 'L':
+                        nextQ.append( ((x,y),'E') )
+                        seen.add( (x,y) ) 
+                    elif arr[x][y] == 'J':
+                        nextQ.append( ((x,y),'W') )
+                        seen.add( (x,y) )
+
+            elif comp == 'E':
+                y += 1
+                if 0<=y<n and (x,y) not in seen:
+                    if arr[x][y] == '-':
+                        nextQ.append( ((x,y),'E') )
+                        seen.add( (x,y) )
+                    elif arr[x][y] == 'J':
+                        nextQ.append( ((x,y),'N') )
+                        seen.add( (x,y) ) 
+                    elif arr[x][y] == '7':
+                        nextQ.append( ((x,y),'S') )
+                        seen.add( (x,y) )
+
+            elif comp == 'W':
+                y -= 1
+                if 0<=y<n and (x,y) not in seen:
+                    if arr[x][y] == '-':
+                        nextQ.append( ((x,y),'W') )
+                        seen.add( (x,y) )
+                    elif arr[x][y] == 'L':
+                        nextQ.append( ((x,y),'N') )
+                        seen.add( (x,y) ) 
+                    elif arr[x][y] == 'F':
+                        nextQ.append( ((x,y),'S') )
+                        seen.add( (x,y) )
+
+        if nextQ:
+            q = nextQ
+        else:
+            break
+    
     special = "|-FJL7"
 
     #what is S ???
@@ -169,7 +284,13 @@ def dayTen2():
                 maybe_s &= {'-','L','F'}
     arr[start[0]][start[1]] = maybe_s.pop()
 
-    h = {'|':[['.','|','.'],['.','|','.'],['.','|','.']], '-':[['.','.','.'],['-','-','-'],['.','.','.']], '7':[['.','.','.'],['-','7','.'],['.','|','.']] , 'F':[['.','.','.'],['.','F','-'],['.','|','.']] , 'L':[['.','|','.'],['.','L','-'],['.','.','.']] , 'J':[['.','|','.'],['-','J','.'],['.','.','.']]}
+    #replace all cells that dont belong to the loop
+    for i in range(m):
+        for j in range(n):
+            if arr[i][j] in special and (i,j) not in seen:
+                arr[i][j] = '.'
+
+    h = {'|':[['*','|','*'],['*','|','*'],['*','|','*']], '-':[['*','*','*'],['-','-','-'],['*','*','*']], '7':[['*','*','*'],['-','7','*'],['*','|','*']] , 'F':[['*','*','*'],['*','F','-'],['*','|','*']] , 'L':[['*','|','*'],['*','L','-'],['*','*','*']] , 'J':[['*','|','*'],['-','J','*'],['*','*','*']]}
     newArr = [['.']*n*3 for _ in range(m*3)]
 
     for i in range(m):
@@ -182,29 +303,24 @@ def dayTen2():
 
     m,n = len(newArr),len(newArr[0])
     seen = set()
-
-    for a in newArr:
-        print(''.join(a))
-
-    return
-
     def bfs(i,j):
         count = 1
         inside = True
         q = deque([(i,j)])
         seen.add( (i,j) )
 
-        
         while q:
             curr = q.popleft()
             x,y = curr
             for dx,dy in ngh:
                 nx,ny = dx+x,dy+y
                 if 0<=nx<m and 0<=ny<n:
-                    if newArr[nx][ny] == '.' and (nx,ny) not in seen:
+                    if newArr[nx][ny] in '.*' and (nx,ny) not in seen:
                         seen.add( (nx,ny) )
                         q.append( (nx,ny) )
-
+                        
+                        if newArr[nx][ny] == '.':
+                            count += 1
                 else:
                     inside = False
 
@@ -219,11 +335,11 @@ def dayTen2():
             if newArr[i][j] == '.' and (i,j) not in seen:
                 inloop += bfs(i,j)
 
-    return inloop//3
+    return inloop//9
 
 def main():
     print("Hallo")
-    #print(dayTen(), "ist die Lösung von Teil 1")
+    print(dayTen(), "ist die Lösung von Teil 1")
     print(dayTen2(), "ist die Lösung von Teil 2")
      
 if __name__=="__main__":
