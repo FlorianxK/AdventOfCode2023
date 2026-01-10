@@ -157,9 +157,6 @@ def dayFourteen2():
             moveWest(arr)
             moveSouth(arr)
             moveEast(arr)
-            
-            #r = count(arr)
-            #print(f"{i} : {r}")
 
             temp = arr.copy()
             for i in range(len(temp)):
@@ -168,9 +165,7 @@ def dayFourteen2():
             if tuple(temp) not in h:
                 h[tuple(temp)] = index
             else:
-                print(h[tuple(temp)])
-                print(index)
-                wanted = 1000000000 % (index-h[tuple(temp)])
+                wanted = (1000000000-h[tuple(temp)]) % (index-h[tuple(temp)]) + h[tuple(temp)]
                 
                 for k,v in h.items():
                     if v == wanted:
