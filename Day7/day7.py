@@ -51,22 +51,13 @@ def daySeven():
             temp[7].append(i)
     temp = dict(sorted(temp.items()))
 
+    def strength(hand):
+        cards[hand]
+
     #compare is wrong because it doesnt look at highest card
     #sort function that looks at hashmap highest val then second highest
     for k,v in temp.items():
-        if len(v) > 1:
-            pairs = [] # ( summe,index ) then sort reverse
-            for val in v:
-                summe = 0
-                for a,b in cards[val].items():
-                    summe += a*b
-                pairs.append( (summe,val) )
-        
-            pairs.sort(reverse=True)
-            newK = []
-            for a,b in pairs:
-                newK.append(b)
-            temp[k] = newK
+        v.sort(key = lambda v: strength(v))
 
     res = 0
     index = 5
