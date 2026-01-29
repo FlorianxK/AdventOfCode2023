@@ -1,3 +1,6 @@
+from typing import *
+from sympy import *
+
 def dayTwentyFour():
     hailstorms = []
     minA = 200000000000000
@@ -50,7 +53,27 @@ def dayTwentyFour():
     return res
     
 def dayTwentyFour2():
-    pass
+    hailstorms = []
+    res = 0
+    #read
+    with open("Day24/24_2.txt") as file:
+        for line in file:
+            l,r = line.strip().split(" @ ")
+            p = [int(x) for x in l.split(", ")]
+            v = [int(x) for x in r.split(", ")]
+            hailstorms.append((p, v))
+
+    xr,yr,zr, vxr,vyr,vzr = symbols("xr,yr,zr,vxr,vyr,vzr")
+    equations = []
+    for p,v in hailstorms:
+        px,py,pz = p
+        vx,vy,vz = v
+        equations.append( (xr-px)*(vy-vyr) - (yr-py)*(vx-vxr) )
+        equations.append( (yr-py)*(vz-vzr) - (zr-pz)*(vy-vyr) )
+    
+    res = solve(equations)
+    res = res[0]
+    return res[xr]+res[yr]+res[zr]
 
 def main():
     print("Hallo")
